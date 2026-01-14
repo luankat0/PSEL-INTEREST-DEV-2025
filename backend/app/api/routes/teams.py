@@ -2,7 +2,7 @@ from typing import List, Any
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from app.api.deps import get_session
-from app.models import Team, TeamCreate, TeamRead, UserTeam, User
+from app.models import Team, TeamCreate, TeamRead, UserTeam, User, UserRead
 
 router = APIRouter()
 
@@ -82,3 +82,19 @@ def remove_member_from_team(*, session: Session = Depends(get_session), team_id:
     session.delete(membership)
     session.commit()
     return {"message": "User removed from team"}
+
+@router.get("/{team_id}/members", response_model=List[UserRead])
+def read_team_member(*, session: Session = Depends(get_session), team_id: int):
+    """
+    Lista todos os membros da equipe específica.
+    """
+
+    team = session.get(Team, team_id)
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    
+    members = session.exec(
+        select(User).join(UserTeam).where(UserTeam.team_id == team_id)
+    ).all()
+
+    return members

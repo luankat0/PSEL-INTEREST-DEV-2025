@@ -1,29 +1,28 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
-const Header: React.FC = () => {
+export default function Header() {
   return (
-    <header className="compact-header">
-      <div className="header-content">
-        <Link to="/" className="logo-link">
-          <div className="logo-compact">
-            <span className="logo-icon">⚔️</span>
-            <div className="logo-text-group">
-              <span className="logo-title">Interest</span>
-              <span className="logo-subtitle">Desafio Técnico</span>
-            </div>
-          </div>
+    <header className="border-b bg-white px-6 py-4 flex items-center justify-between shadow-sm">
+      <div className="flex items-center gap-2">
+        <Link to="/" className="text-xl font-bold text-blue-600 hover:text-blue-700">
+          Interest Dev
         </Link>
-        
-        <nav className="header-nav">
-          <Link to="/" className="nav-link">Quests</Link>
-          <a href="https://github.com/Joao-Marinho-Interest/Seletiva-Interest-Dev-2025" target="_blank" rel="noopener noreferrer" className="nav-link">
-            GitHub
-          </a>
-        </nav>
       </div>
-    </header>
-  )
-}
 
-export default Header
+      <nav className="flex items-center gap-4">
+        <Link 
+          to="/users" 
+          className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+        >
+          Usuários
+        </Link>
+        <Link 
+          to="/teams" 
+          className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-md transition-colors"
+        >
+          Equipes
+        </Link>
+      </nav>
+    </header>
+  );
+}

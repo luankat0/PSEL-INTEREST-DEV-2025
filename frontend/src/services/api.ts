@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const api = axios.create({
   // Garante que esta URL corresponde à porta onde o teu Backend FastAPI está a rodar
-  baseURL: 'http://localhost:8000', 
+  baseURL: 'http://localhost:8000/api/v1', 
 });
 
 api.interceptors.response.use(

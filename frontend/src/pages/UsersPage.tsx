@@ -40,6 +40,17 @@ export default function UsersPage() {
     setIsModalOpen(true);
   }
 
+  const handleDelete = async (id: number) => {
+    if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
+    try {
+        await api.delete(`/users/${id}`);
+        toast.success("Usuário excluído.");
+        fetchUsers();
+    } catch (error: any) {
+        toast.error(error.response?.data?.detail || "Erro ao excluir");
+    }
+  }
+
   const handleSave = async () => {
     try {
       if (editingUser) {
@@ -86,12 +97,18 @@ export default function UsersPage() {
                   <td className="px-6 py-4 text-slate-500">{user.id}</td>
                   <td className="px-6 py-4 font-medium text-slate-900">{user.name}</td>
                   <td className="px-6 py-4 text-slate-600">{user.email}</td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-6 py-4 text-right space-x-2">
                     <button 
                       onClick={() => handleOpenEdit(user)}
                       className="text-blue-600 hover:text-blue-800 font-medium px-3 py-1 rounded hover:bg-blue-50"
                     >
                       Editar
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(user.id)}
+                      className="text-red-600 hover:text-red-800 font-medium px-3 py-1 rounded hover:bg-red-50"
+                    >
+                      Excluir
                     </button>
                   </td>
                 </tr>

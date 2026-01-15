@@ -40,6 +40,17 @@ export default function TeamsPage() {
     }
   };
 
+  const handleDelete = async (id: number) => {
+    if (!confirm("Tem certeza? Todos os membros serão removidos da equipe.")) return;
+    try {
+        await api.delete(`/teams/${id}`);
+        toast.success("Equipe excluída.");
+        fetchData();
+    } catch (error: any) {
+        toast.error(error.response?.data?.detail || "Erro ao excluir");
+    }
+  }
+
   const getLeaderName = (id: number) => users.find(u => u.id === id)?.name || 'Desconhecido';
 
   return (
@@ -68,12 +79,18 @@ export default function TeamsPage() {
               <tr key={team.id} className="hover:bg-slate-50">
                 <td className="px-6 py-4 font-medium text-slate-900">{team.name}</td>
                 <td className="px-6 py-4 text-slate-600">{getLeaderName(team.leader_id)}</td>
-                <td className="px-6 py-4 text-right">
+                <td className="px-6 py-4 text-right space-x-2">
                   <Link to={`/teams/${team.id}`}>
                     <button className="text-blue-600 hover:text-blue-800 font-medium border border-blue-200 px-3 py-1 rounded hover:bg-blue-50">
                         Detalhes
                     </button>
                   </Link>
+                  <button 
+                    onClick={() => handleDelete(team.id)}
+                    className="text-red-600 hover:text-red-800 font-medium border border-red-200 px-3 py-1 rounded hover:bg-red-50"
+                  >
+                      Excluir
+                  </button>
                 </td>
               </tr>
             ))}

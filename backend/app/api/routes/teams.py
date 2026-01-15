@@ -2,7 +2,7 @@ from typing import List, Any
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from app.api.deps import get_session
-from app.models import Team, TeamCreate, TeamRead, UserTeam, User, UserRead
+from app.models import Team, TeamCreate, TeamUpdate, TeamRead, UserTeam, User, UserRead
 
 router = APIRouter()
 
@@ -98,3 +98,33 @@ def read_team_member(*, session: Session = Depends(get_session), team_id: int):
     ).all()
 
     return members
+
+@router.patch("/{team_id}", response_model=TeamRead)
+def update_team(*, session: Session = Depends(get_session), team_id: int, team_update: TeamUpdate):
+    db_team = session.get(Team, team_id)
+    if not db_team:
+        raise HTTPException(status_code=404, detail="Team not found")
+
+    if team_update.leader_id is not None:
+        # 1. Verificar se o novo líder existe
+        new_leader = session.get(User, team_update.leader_id)
+        if not new_leader:
+            raise HTTPException(status_code=404, detail="New leader not found")
+        
+        # 2. Verificar se o novo líder JÁ é líder de outra equipe (Regra de Líder Único)
+        # Ignora se for a mesma equipe
+        existing_leadership = session.exec(
+            select(Team).where(Team.leader_id == team_update.leader_id, Team.id != team_id)
+        ).first()
+        
+        if existing_leadership:
+             raise HTTPException(status_code=400, detail="Este usuário já lidera outra equipe.")
+
+    # Atualiza os dados
+    team_data = team_update.model_dump(exclude_unset=True)
+    db_team.sqlmodel_update(team_data)
+    
+    session.add(db_team)
+    session.commit()
+    session.refresh(db_team)
+    return db_team

@@ -8,17 +8,29 @@ export default function TeamDetailPage() {
   const { id } = useParams();
   const [team, setTeam] = useState<Team | null>(null);
   
-  // Estados de Dados
   const [users, setUsers] = useState<User[]>([]); 
   const [members, setMembers] = useState<User[]>([]); 
   
-  // Estados de Controle (Adicionar)
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [isAddOpen, setIsAddOpen] = useState(false);
 
-  // Estados de Controle (Remover) - NOVO
   const [isRemoveOpen, setIsRemoveOpen] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<User | null>(null);
+
+  const [isChangeLeaderOpen, setIsChangeLeaderOpen] = useState(false);
+  const [newLeaderId, setNewLeaderId] = useState<string>("");
+
+  const handleChangeLeader = async () => {
+    if (!newLeaderId) return;
+    try {
+        await api.patch(`/teams/${id}`, { leader_id: Number(newLeaderId) });
+        toast.success("Líder alterado com sucesso!");
+        setIsChangeLeaderOpen(false);
+        loadData(); // Recarrega para atualizar a interface
+    } catch (error: any) {
+        toast.error(error.response?.data?.detail || "Erro ao alterar líder");
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -77,11 +89,19 @@ export default function TeamDetailPage() {
       <div className="bg-white rounded-lg shadow border border-slate-200 p-6 mb-8">
         <h1 className="text-3xl font-bold text-slate-900">{team.name}</h1>
         <p className="text-slate-500 mt-2">{team.description || "Sem descrição"}</p>
-        <div className="mt-4 inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm">
+        <div className="mt-4 flex items-center gap-4">
+          <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm">
             Líder ID: {team.leader_id}
+          </div>
+          <button 
+            onClick={() => setIsChangeLeaderOpen(true)}
+            className="text-sm text-blue-600 hover:underline font-medium"
+          >
+            Alterar Líder
+          </button>
         </div>
       </div>
-
+      
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-slate-800">Membros da Equipe</h2>
         <button 
@@ -137,7 +157,7 @@ export default function TeamDetailPage() {
         </table>
       </div>
 
-      {/* Modal de Adicionar (Já existente) */}
+      {/* Modal de Adicionar */}
       {isAddOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 m-4">
@@ -165,7 +185,7 @@ export default function TeamDetailPage() {
         </div>
       )}
 
-      {/* Modal de Remover (NOVO) */}
+      {/* Modal de Remover */}
       {isRemoveOpen && memberToRemove && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 m-4 animate-in fade-in zoom-in duration-200">
@@ -195,6 +215,35 @@ export default function TeamDetailPage() {
         </div>
       )}
 
+      {isChangeLeaderOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 m-4">
+        <h2 className="text-xl font-bold mb-4">Alterar Líder da Equipe</h2>
+        <p className="text-sm text-slate-600 mb-4">
+          Selecione um novo líder. O líder anterior se tornará um membro comum.
+        </p>
+      <div className="space-y-4">
+        <select 
+          className="w-full border border-slate-300 rounded px-3 py-2 bg-white"
+          onChange={(e) => setNewLeaderId(e.target.value)}
+          defaultValue=""
+        >
+          <option value="" disabled>Selecione novo líder...</option>
+          {users.map(u => (
+            // Desabilita o líder atual
+            <option key={u.id} value={u.id} disabled={u.id === team.leader_id}>
+              {u.name} {u.id === team.leader_id ? '(Atual)' : ''}
+            </option>
+          ))}
+        </select>
+        <div className="flex justify-end gap-2 mt-6">
+            <button onClick={() => setIsChangeLeaderOpen(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded">Cancelar</button>
+            <button onClick={handleChangeLeader} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Confirmar</button>
+        </div>
+      </div>
     </div>
+  </div>
+  )}
+  </div>  
   );
 }

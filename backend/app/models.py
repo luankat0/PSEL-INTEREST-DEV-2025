@@ -29,6 +29,11 @@ class UserCreate(UserBase):
 class UserRead(UserBase):
     id: int
 
+class UserUpdate(SQLModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    is_active: Optional[bool] = None
+
 # --- Modelo de Equipe ---
 class TeamBase(SQLModel):
     name: str

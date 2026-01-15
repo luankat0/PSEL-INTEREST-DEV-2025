@@ -94,6 +94,14 @@ export default function TeamsPage() {
                 />
               </div>
               <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Descrição (Opcional)</label>
+                <textarea
+                  className="w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                  onChange={(e) => setNewTeam({ ...newTeam, description: e.target.value })}
+                />
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Líder</label>
                 <select 
                     className="w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
